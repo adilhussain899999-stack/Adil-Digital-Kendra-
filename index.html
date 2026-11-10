@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>ADIL DIGITAL KENDRA - Official Client Portal</title>
+  
+  <!-- Google Fonts & Tailwind CSS -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+  
+  <style>
+    body {
+      background-color: #030712;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: #f8fafc;
+    }
+    .app-viewport {
+      max-width: 480px;
+      min-height: 100vh;
+      margin: 0 auto;
+      background-color: #0b0f19;
+      box-shadow: 0 0 50px rgba(99, 102, 241, 0.15);
+    }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    
+    .neon-border {
+      box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+    }
+    .neon-glow-teal {
+      box-shadow: 0 0 20px rgba(20, 184, 166, 0.25);
+    }
+    .neon-glow-indigo {
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.35);
+    }
+    .glass-card {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+  </style>
+</head>
+<body class="flex justify-center items-center min-h-screen selection:bg-indigo-500 selection:text-white">
+
+  <div class="app-viewport w-full flex flex-col justify-between relative overflow-hidden border-x border-slate-800/80">
+
+    <!-- 1. LIVE TICKER BANNER -->
+    <div id="live-ticker-bar" class="hidden bg-indigo-950/80 border-b border-indigo-800/50 px-4 py-2 flex items-center space-x-2 text-xs z-30">
+      <span class="bg-indigo-600 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider animate-pulse flex-shrink-0">NOTICE</span>
+      <marquee id="ticker-text" class="text-indigo-200 text-xs font-semibold" scrollamount="4"></marquee>
+    </div>
+
+    <!-- 2. LOGIN SCREEN (AUTHENTICATION & BOT-PROOF CAPTCHA) -->
+    <div id="portal-login-screen" class="inset-0 min-h-screen flex flex-col justify-center px-6 py-10 z-40 bg-slate-950">
+      <div class="space-y-6">
+        
+        <!-- Brand Header -->
+        <div class="text-center space-y-3">
+          <div class="w-20 h-20 rounded-3xl bg-gradient-to-tr from-indigo-600 to-violet-500 mx-auto flex items-center justify-center font-black text-4xl text-white shadow-xl shadow-indigo-500/40 neon-border">
+            AD
+          </div>
+          <h1 class="text-2xl font-black tracking-tight text-white uppercase pt-1">ADIL DIGITAL KENDRA</h1>
+          <p class="text-xs font-semibold text-indigo-400 tracking-widest uppercase">Secure Portal Authorization</p>
+        </div>
+
+        <!-- Login Form -->
+        <form id="user-login-form" class="space-y-4 pt-2">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1.5">Username</label>
+            <input type="text" id="login-username" required placeholder="Enter username" class="w-full bg-slate-900 border border-slate-800 focus:border-indigo-500 rounded-xl px-4 py-3 text-xs text-white focus:outline-none transition-all placeholder:text-slate-600" />
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1.5">Password</label>
+            <input type="password" id="login-password" required placeholder="Enter password" class="w-full bg-slate-900 border border-slate-800 focus:border-indigo-500 rounded-xl px-4 py-3 text-xs text-white focus:outline-none transition-all placeholder:text-slate-600" />
+          </div>
+
+          <!-- BOT-PROOF HARD CANVAS CAPTCHA -->
+          <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 space-y-2">
+            <div class="flex items-center justify-between">
+              <label class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider">Human Verification</label>
+              <button type="button" onclick="generateHardCaptcha()" class="text-[10px] text-slate-400 hover:text-white underline">Refresh Captcha 🔄</button>
+            </div>
+            
+            <div class="flex items-center space-x-3">
+              <canvas id="captcha-canvas" width="140" height="42" class="rounded-lg border border-slate-800 bg-slate-950 flex-shrink-0 cursor-pointer" onclick="generateHardCaptcha()"></canvas>
+              <input type="text" id="captcha-input" required placeholder="Type Code" class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg px-3 py-2.5 text-xs text-white font-mono uppercase focus:outline-none" />
+            </div>
+          </div>
+
+          <button type="submit" class="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 active:scale-[0.99] text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider transition-all shadow-lg shadow-indigo-600/30">
+            Verify & Enter Portal
+          </button>
+        </form>
+
+        <!-- Official Support Contact Box -->
+        <div class="pt-4 border-t border-slate-800/80 text-center space-y-3">
+          <p class="text-[11px] text-slate-400 font-medium">To access the portal or get account, contact us:</p>
+          <div class="flex items-center justify-center space-x-3">
+            <a href="https://wa.me/917488176848" target="_blank" class="flex items-center space-x-2 bg-emerald-950/60 border border-emerald-800/60 hover:bg-emerald-900/60 px-3.5 py-2 rounded-xl text-xs font-semibold text-emerald-300 transition-all">
+              <span>💬 WhatsApp</span>
+            </a>
+            <a href="mailto:byteburner356@gmail.com" class="flex items-center space-x-2 bg-rose-950/60 border border-rose-800/60 hover:bg-rose-900/60 px-3.5 py-2 rounded-xl text-xs font-semibold text-rose-300 transition-all">
+              <span>✉️ Email</span>
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 3. CLIENT PORTAL DASHBOARD -->
+    <div id="portal-dashboard" class="hidden flex-col h-full min-h-screen">
+      
+      <!-- Top Sticky Header -->
+      <header class="bg-slate-950/90 backdrop-blur-md border-b border-slate-800/80 p-4 sticky top-0 z-30 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center font-black text-xl text-white shadow-md shadow-indigo-500/30 neon-border">
+            AD
+          </div>
+          <div>
+            <h1 class="text-sm font-black tracking-tight text-white uppercase">ADIL DIGITAL KENDRA</h1>
+            <p id="active-username-display" class="text-[10px] text-indigo-400 font-bold">User: Guest</p>
+          </div>
+        </div>
+        <button id="portal-logout-btn" class="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-300 hover:text-white transition-all">
+          Logout
+        </button>
+      </header>
+
+      <!-- Dashboard Scrollable Body -->
+      <main class="flex-grow p-4 space-y-6 overflow-y-auto hide-scrollbar pb-10">
+
+        <!-- INTERACTIVE TOOLS GRID -->
+        <section class="space-y-3">
+          <div class="flex items-center space-x-2 border-l-4 border-indigo-500 pl-2">
+            <h2 class="text-xs font-extrabold text-white uppercase tracking-wider">Interactive Tools</h2>
+          </div>
+          <div id="tools-display-grid" class="grid grid-cols-3 gap-3">
+            <!-- Dynamic Tools rendered here -->
+          </div>
+        </section>
+
+        <!-- PORTAL SERVICES & LINKS GRID -->
+        <section class="space-y-3">
+          <div class="flex items-center space-x-2 border-l-4 border-emerald-500 pl-2">
+            <h2 class="text-xs font-extrabold text-white uppercase tracking-wider">Portal Services & Links</h2>
+          </div>
+          <div id="links-display-grid" class="grid grid-cols-3 gap-3">
+            <!-- Dynamic Links rendered here -->
+          </div>
+        </section>
+
+      </main>
+
+      <!-- Portal Footer -->
+      <footer class="text-center py-4 border-t border-slate-800/60 bg-slate-950">
+        <p class="text-[11px] font-semibold text-slate-500">© 2026 Adil Digital Kendra. All rights reserved.</p>
+      </footer>
+
+    </div>
+
+  </div>
+
+  <!-- POPUP MODAL TEMPLATE -->
+  <div id="popup-modal" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="glass-card border border-slate-800 rounded-3xl p-6 w-full max-w-sm text-center space-y-4 shadow-2xl">
+      <div id="popup-icon-container" class="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center text-2xl font-bold">
+        🔔
+      </div>
+      <h3 id="popup-title" class="text-sm font-black uppercase text-white tracking-wider">Notice</h3>
+      <p id="popup-message" class="text-xs text-slate-300 leading-relaxed"></p>
+      <button id="popup-close-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-lg shadow-indigo-600/30">
+        Dismiss
+      </button>
+    </div>
+  </div>
+
+  <!-- EMBED TOOL LAUNCHER MODAL -->
+  <div id="tool-embed-modal" class="hidden fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex flex-col p-4">
+    <div class="flex items-center justify-between bg-slate-900 border border-slate-800 p-3 rounded-2xl mb-3">
+      <h3 id="embed-tool-title" class="text-xs font-bold text-white uppercase">Interactive Tool</h3>
+      <button onclick="closeEmbedTool()" class="bg-rose-950 text-rose-400 border border-rose-800 px-3 py-1 rounded-xl text-xs font-bold">Close Tool ✖</button>
+    </div>
+    <div id="embed-tool-container" class="flex-grow bg-slate-900 border border-slate-800 rounded-2xl p-4 overflow-y-auto"></div>
+  </div>
+
+  <script>
+    // Firebase Setup
+    const firebaseConfig = {
+      apiKey: "AIzaSyBRXbHx6wUVbkHLbtaY9m2p6lcmEHNyubc",
+      authDomain: "adil-digital-kendra.firebaseapp.com",
+      databaseURL: "https://adil-digital-kendra-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "adil-digital-kendra",
+      storageBucket: "adil-digital-kendra.firebasestorage.app",
+      messagingSenderId: "394806804134",
+      appId: "1:394806804134:web:91a51971704408df48be67"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // Global App State
+    let currentCaptchaCode = "";
+    let loggedInUser = null;
+
+    // DOM Elements
+    const loginScreen = document.getElementById('portal-login-screen');
+    const dashboard = document.getElementById('portal-dashboard');
+    const loginForm = document.getElementById('user-login-form');
+    const activeUserDisplay = document.getElementById('active-username-display');
+    const toolsGrid = document.getElementById('tools-display-grid');
+    const linksGrid = document.getElementById('links-display-grid');
+    const liveTickerBar = document.getElementById('live-ticker-bar');
+    const tickerText = document.getElementById('ticker-text');
+
+    // 1. HARD BOT-PROOF CAPTCHA GENERATOR
+    function generateHardCaptcha() {
+      const canvas = document.getElementById('captcha-canvas');
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Random distorted string
+      const chars = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
+      let captcha = "";
+      for (let i = 0; i < 5; i++) {
+        captcha += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      currentCaptchaCode = captcha;
+
+      // Dark Canvas Background Noise
+      ctx.fillStyle = '#020617';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Random Distortion Lines
+      for (let i = 0; i < 6; i++) {
+        ctx.strokeStyle = `rgba(99, 102, 241, ${Math.random() * 0.4 + 0.2})`;
+        ctx.beginPath();
+        ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
+        ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height);
+        ctx.stroke();
+      }
+
+      // Render Distorted Characters
+      for (let i = 0; i < captcha.length; i++) {
+        ctx.save();
+        ctx.font = 'bold 22px monospace';
+        ctx.fillStyle = i % 2 === 0 ? '#818cf8' : '#34d399';
+        ctx.translate(20 + i * 24, 28);
+        ctx.rotate((Math.random() - 0.5) * 0.4);
+        ctx.fillText(captcha[i], 0, 0);
+        ctx.restore();
+      }
+    }
+
+    // Initialize Captcha on Load
+    window.onload = () => {
+      generateHardCaptcha();
+      checkSavedSession();
+    };
+
+    // 2. USER LOGIN VERIFICATION
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const u = document.getElementById('login-username').value.trim();
+      const p = document.getElementById('login-password').value.trim();
+      const userCap = document.getElementById('captcha-input').value.trim().toUpperCase();
+
+      if (userCap !== currentCaptchaCode) {
+        showPopup("Security Warning", "Invalid Captcha code! Please type the exact letters shown in the box.", "⚠️", "rose");
+        generateHardCaptcha();
+        document.getElementById('captcha-input').value = "";
+        return;
+      }
+
+      // Verify User in Firebase Realtime Database
+      db.ref('users/' + u).once('value').then((snapshot) => {
+        const userData = snapshot.val();
+
+        if (!userData || userData.password !== p) {
+          showPopup("Access Denied", "Incorrect username or password. Please contact admin.", "🚫", "rose");
+          generateHardCaptcha();
+          return;
+        }
+
+        if (userData.status === 'blocked') {
+          const reason = userData.block_reason ? `<br><br><b>Reason:</b> ${userData.block_reason}` : '';
+          showPopup("Account Suspended", `Your account has been blocked by system admin.${reason}`, "🔒", "rose");
+          generateHardCaptcha();
+          return;
+        }
+
+        // Login Success
+        loggedInUser = u;
+        localStorage.setItem('ad_user_session', u);
+        db.ref('users/' + u).update({ last_seen: new Date().toLocaleString() });
+
+        loginScreen.classList.add('hidden');
+        dashboard.classList.remove('hidden');
+        dashboard.classList.add('flex');
+        activeUserDisplay.innerText = `User: ${u}`;
+
+        showPopup("Welcome Back", `Successfully logged into Adil Digital Kendra portal.`, "✅", "emerald");
+        listenLiveUpdates();
+      });
+    });
+
+    // Check Auto-Session
+    function checkSavedSession() {
+      const savedUser = localStorage.getItem('ad_user_session');
+      if (savedUser) {
+        db.ref('users/' + savedUser).once('value').then((snap) => {
+          const uData = snap.val();
+          if (uData && uData.status !== 'blocked') {
+            loggedInUser = savedUser;
+            loginScreen.classList.add('hidden');
+            dashboard.classList.remove('hidden');
+            dashboard.classList.add('flex');
+            activeUserDisplay.innerText = `User: ${savedUser}`;
+            listenLiveUpdates();
+          } else {
+            localStorage.removeItem('ad_user_session');
+          }
+        });
+      }
+    }
+
+    // Logout Action
+    document.getElementById('portal-logout-btn').onclick = () => {
+      localStorage.removeItem('ad_user_session');
+      dashboard.classList.add('hidden');
+      dashboard.classList.remove('flex');
+      loginScreen.classList.remove('hidden');
+      generateHardCaptcha();
+    };
+
+    // 3. LISTEN TO LIVE FIREBASE UPDATES
+    function listenLiveUpdates() {
+      // Server Maintenance Listener
+      db.ref('system/server_status').on('value', (snap) => {
+        if (snap.val() === 'maintenance') {
+          showPopup("Under Maintenance", "Portal is currently offline for system maintenance. Please check back later.", "🛠️", "indigo");
+        }
+      });
+
+      // Announcement Ticker Listener
+      db.ref('system/notice_message').on('value', (snap) => {
+        const msg = snap.val();
+        if (msg) {
+          tickerText.innerText = msg;
+          liveTickerBar.classList.remove('hidden');
+        } else {
+          liveTickerBar.classList.add('hidden');
+        }
+      });
+
+      // Render Dynamic Interactive Tools
+      db.ref('tools').on('value', (snapshot) => {
+        toolsGrid.innerHTML = '';
+        const data = snapshot.val();
+        if (!data) return;
+
+        Object.keys(data).forEach(key => {
+          const item = data[key];
+          if (item.hidden === true) return;
+
+          let iconContent = `<div class="w-12 h-12 rounded-2xl bg-indigo-600/30 text-indigo-300 flex items-center justify-center font-black text-xs uppercase border border-indigo-500/40">TOOL</div>`;
+          if (item.icon_url) {
+            iconContent = `<img src="${item.icon_url}" class="w-12 h-12 rounded-2xl object-contain bg-slate-950 p-1.5 border border-indigo-500/40 neon-glow-indigo" />`;
+          }
+
+          const card = document.createElement('div');
+          card.className = "glass-card hover:border-indigo-500/60 p-3 rounded-2xl flex flex-col items-center text-center justify-between cursor-pointer transition-all active:scale-95 space-y-2";
+          card.onclick = () => launchTool(item);
+          card.innerHTML = `
+            ${iconContent}
+            <span class="text-[11px] font-bold text-slate-200 line-clamp-2 leading-snug">${item.title}</span>
+          `;
+          toolsGrid.appendChild(card);
+        });
+      });
+
+      // Render Dynamic Portal Links
+      db.ref('links').on('value', (snapshot) => {
+        linksGrid.innerHTML = '';
+        const data = snapshot.val();
+        if (!data) return;
+
+        Object.keys(data).forEach(key => {
+          const item = data[key];
+          if (item.hidden === true) return;
+
+          let iconContent = `<div class="w-12 h-12 rounded-2xl bg-emerald-600/30 text-emerald-300 flex items-center justify-center font-black text-xs uppercase border border-emerald-500/40">LINK</div>`;
+          if (item.icon_url) {
+            iconContent = `<img src="${item.icon_url}" class="w-12 h-12 rounded-2xl object-contain bg-slate-950 p-1.5 border border-emerald-500/40 neon-glow-teal" />`;
+          }
+
+          const card = document.createElement('div');
+          card.className = "glass-card hover:border-emerald-500/60 p-3 rounded-2xl flex flex-col items-center text-center justify-between cursor-pointer transition-all active:scale-95 space-y-2";
+          card.onclick = () => window.open(item.target_url, '_blank');
+          card.innerHTML = `
+            ${iconContent}
+            <span class="text-[11px] font-bold text-slate-200 line-clamp-2 leading-snug">${item.title}</span>
+          `;
+          linksGrid.appendChild(card);
+        });
+      });
+    }
+
+    // LAUNCH TOOLS (TARGET URL OR HTML SNIPPET)
+    function launchTool(tool) {
+      if (tool.target_url) {
+        window.open(tool.target_url, '_blank');
+      } else if (tool.code) {
+        document.getElementById('embed-tool-title').innerText = tool.title;
+        document.getElementById('embed-tool-container').innerHTML = tool.code;
+        document.getElementById('tool-embed-modal').classList.remove('hidden');
+      }
+    }
+
+    function closeEmbedTool() {
+      document.getElementById('tool-embed-modal').classList.add('hidden');
+      document.getElementById('embed-tool-container').innerHTML = '';
+    }
+
+    // CUSTOM POPUP CONTROLLER
+    function showPopup(title, msg, icon = "🔔", color = "indigo") {
+      const modal = document.getElementById('popup-modal');
+      const titleEl = document.getElementById('popup-title');
+      const msgEl = document.getElementById('popup-message');
+      const iconContainer = document.getElementById('popup-icon-container');
+
+      titleEl.innerText = title;
+      msgEl.innerHTML = msg;
+      iconContainer.innerText = icon;
+
+      modal.classList.remove('hidden');
+    }
+
+    document.getElementById('popup-close-btn').onclick = () => {
+      document.getElementById('popup-modal').classList.add('hidden');
+    };
+  </script>
+</body>
+</html>
