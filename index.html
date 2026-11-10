@@ -210,6 +210,7 @@
     // Global App State
     let currentCaptchaCode = "";
     let loggedInUser = null;
+    let sessionTimerInterval = null;
 
     // DOM Elements
     const loginScreen = document.getElementById('portal-login-screen');
@@ -227,7 +228,6 @@
       const ctx = canvas.getContext('2d');
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Random distorted string
       const chars = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
       let captcha = "";
       for (let i = 0; i < 5; i++) {
@@ -235,11 +235,9 @@
       }
       currentCaptchaCode = captcha;
 
-      // Dark Canvas Background Noise
       ctx.fillStyle = '#020617';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Random Distortion Lines
       for (let i = 0; i < 6; i++) {
         ctx.strokeStyle = `rgba(99, 102, 241, ${Math.random() * 0.4 + 0.2})`;
         ctx.beginPath();
@@ -248,7 +246,6 @@
         ctx.stroke();
       }
 
-      // Render Distorted Characters
       for (let i = 0; i < captcha.length; i++) {
         ctx.save();
         ctx.font = 'bold 22px monospace';
@@ -260,13 +257,12 @@
       }
     }
 
-    // Initialize Captcha on Load
     window.onload = () => {
       generateHardCaptcha();
       checkSavedSession();
     };
 
-    // 2. USER LOGIN VERIFICATION
+    // 2. USER LOGIN VERIFICATION & 3-HOUR SESSION TIMESTAMP
     loginForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const u = document.getElementById('login-username').value.trim();
@@ -280,7 +276,6 @@
         return;
       }
 
-      // Verify User in Firebase Realtime Database
       db.ref('users/' + u).once('value').then((snapshot) => {
         const userData = snapshot.val();
 
@@ -297,60 +292,97 @@
           return;
         }
 
-        // Login Success
+        // Login Success & 3-Hour Timestamp Setting
         loggedInUser = u;
+        const now = Date.now();
         localStorage.setItem('ad_user_session', u);
+        localStorage.setItem('ad_user_login_time', now.toString());
+
         db.ref('users/' + u).update({ last_seen: new Date().toLocaleString() });
+
+        startSessionTimer(now);
 
         loginScreen.classList.add('hidden');
         dashboard.classList.remove('hidden');
         dashboard.classList.add('flex');
         activeUserDisplay.innerText = `User: ${u}`;
 
-        showPopup("Welcome Back", `Successfully logged into Adil Digital Kendra portal.`, "✅", "emerald");
+        showPopup("Welcome Back", `Successfully logged into Adil Digital Kendra portal. Session active for 3 hours.`, "✅", "emerald");
         listenLiveUpdates();
       });
     });
 
-    // Check Auto-Session
+    // 3-HOUR AUTO EXPIRY SESSION TIMER
+    function startSessionTimer(loginTime) {
+      if (sessionTimerInterval) clearInterval(sessionTimerInterval);
+      const threeHours = 3 * 60 * 60 * 1000;
+
+      sessionTimerInterval = setInterval(() => {
+        const elapsed = Date.now() - loginTime;
+        if (elapsed >= threeHours) {
+          clearInterval(sessionTimerInterval);
+          performLogout("Session Expired: 3-hour limit reached. Please log in again.");
+        }
+      }, 1000);
+    }
+
+    // Check Auto-Session on Reload
     function checkSavedSession() {
       const savedUser = localStorage.getItem('ad_user_session');
-      if (savedUser) {
+      const loginTime = localStorage.getItem('ad_user_login_time');
+      const currentTime = Date.now();
+      const threeHours = 3 * 60 * 60 * 1000;
+
+      if (savedUser && loginTime && (currentTime - parseInt(loginTime)) < threeHours) {
         db.ref('users/' + savedUser).once('value').then((snap) => {
           const uData = snap.val();
           if (uData && uData.status !== 'blocked') {
             loggedInUser = savedUser;
+            startSessionTimer(parseInt(loginTime));
+
             loginScreen.classList.add('hidden');
             dashboard.classList.remove('hidden');
             dashboard.classList.add('flex');
             activeUserDisplay.innerText = `User: ${savedUser}`;
             listenLiveUpdates();
           } else {
-            localStorage.removeItem('ad_user_session');
+            performLogout();
           }
         });
+      } else {
+        performLogout();
       }
     }
 
     // Logout Action
     document.getElementById('portal-logout-btn').onclick = () => {
+      performLogout();
+    };
+
+    function performLogout(reasonMsg = null) {
+      if (sessionTimerInterval) clearInterval(sessionTimerInterval);
       localStorage.removeItem('ad_user_session');
+      localStorage.removeItem('ad_user_login_time');
+      loggedInUser = null;
+
       dashboard.classList.add('hidden');
       dashboard.classList.remove('flex');
       loginScreen.classList.remove('hidden');
       generateHardCaptcha();
-    };
+
+      if (reasonMsg) {
+        showPopup("Session Ended", reasonMsg, "🔒", "amber");
+      }
+    }
 
     // 3. LISTEN TO LIVE FIREBASE UPDATES
     function listenLiveUpdates() {
-      // Server Maintenance Listener
       db.ref('system/server_status').on('value', (snap) => {
         if (snap.val() === 'maintenance') {
           showPopup("Under Maintenance", "Portal is currently offline for system maintenance. Please check back later.", "🛠️", "indigo");
         }
       });
 
-      // Announcement Ticker Listener
       db.ref('system/notice_message').on('value', (snap) => {
         const msg = snap.val();
         if (msg) {
@@ -361,7 +393,6 @@
         }
       });
 
-      // Render Dynamic Interactive Tools
       db.ref('tools').on('value', (snapshot) => {
         toolsGrid.innerHTML = '';
         const data = snapshot.val();
@@ -387,7 +418,6 @@
         });
       });
 
-      // Render Dynamic Portal Links
       db.ref('links').on('value', (snapshot) => {
         linksGrid.innerHTML = '';
         const data = snapshot.val();
@@ -414,7 +444,6 @@
       });
     }
 
-    // LAUNCH TOOLS (TARGET URL OR HTML SNIPPET)
     function launchTool(tool) {
       if (tool.target_url) {
         window.open(tool.target_url, '_blank');
@@ -430,7 +459,6 @@
       document.getElementById('embed-tool-container').innerHTML = '';
     }
 
-    // CUSTOM POPUP CONTROLLER
     function showPopup(title, msg, icon = "🔔", color = "indigo") {
       const modal = document.getElementById('popup-modal');
       const titleEl = document.getElementById('popup-title');
