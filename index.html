@@ -27,10 +27,11 @@
       align-items: center;
       min-height: 100vh;
     }
-    /* Strict Centered 9:16 Responsive Viewport */
+    
+    /* Smart Adaptive Viewport: Mobile pe 9:16 centered, Desktop ya Desktop Mode par fluid expansive layout */
     .app-viewport {
       width: 100%;
-      max-width: 450px;
+      max-width: 480px;
       height: 100vh;
       max-height: 100vh;
       margin: 0 auto;
@@ -42,7 +43,20 @@
       overflow: hidden;
       border-left: 1px solid rgba(255, 255, 255, 0.08);
       border-right: 1px solid rgba(255, 255, 255, 0.08);
+      transition: max-width 0.3s ease;
     }
+
+    @media (min-width: 768px), (min-resolution: 192dpi) and (max-width: 1024px) {
+      .app-viewport {
+        max-width: 850px;
+      }
+    }
+    @media (min-width: 1200px) {
+      .app-viewport {
+        max-width: 1100px;
+      }
+    }
+
     .hide-scrollbar::-webkit-scrollbar { display: none; }
     .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     
@@ -80,7 +94,7 @@
 
     <!-- 1. LOGIN SCREEN -->
     <div id="portal-login-screen" class="absolute inset-0 flex flex-col justify-center px-6 py-8 z-40 bg-slate-950 overflow-y-auto hide-scrollbar smooth-transition">
-      <div class="space-y-6 my-auto">
+      <div class="max-w-md mx-auto w-full space-y-6 my-auto">
         
         <!-- Brand Header -->
         <div class="text-center space-y-3">
@@ -136,10 +150,10 @@
       </div>
     </div>
 
-    <!-- 3. CLIENT PORTAL DASHBOARD (ANNOUNCEMENT ONLY HERE) -->
+    <!-- 3. CLIENT PORTAL DASHBOARD -->
     <div id="portal-dashboard" class="hidden absolute inset-0 flex flex-col bg-[#0b0f19] z-30 smooth-transition">
       
-      <!-- Live Ticker Banner (Only inside Dashboard) -->
+      <!-- Live Ticker Banner -->
       <div id="live-ticker-bar" class="hidden bg-indigo-950/90 border-b border-indigo-800/50 px-4 py-2 flex items-center space-x-2 text-xs z-30 flex-shrink-0">
         <span class="bg-indigo-600 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider animate-pulse flex-shrink-0">NOTICE</span>
         <marquee id="ticker-text" class="text-indigo-200 text-xs font-semibold" scrollamount="4"></marquee>
@@ -161,15 +175,15 @@
         </button>
       </header>
 
-      <!-- Scrollable Body -->
-      <main class="flex-grow p-4 space-y-6 overflow-y-auto hide-scrollbar">
+      <!-- Scrollable Body with Adaptive Grid Columns -->
+      <main class="flex-grow p-4 md:p-6 space-y-6 overflow-y-auto hide-scrollbar">
 
         <!-- TOOLS GRID -->
         <section class="space-y-3">
           <div class="flex items-center space-x-2 border-l-4 border-indigo-500 pl-2">
             <h2 class="text-xs font-extrabold text-white uppercase tracking-wider">Interactive Tools</h2>
           </div>
-          <div id="tools-display-grid" class="grid grid-cols-3 gap-3"></div>
+          <div id="tools-display-grid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3"></div>
         </section>
 
         <!-- LINKS GRID -->
@@ -177,7 +191,7 @@
           <div class="flex items-center space-x-2 border-l-4 border-emerald-500 pl-2">
             <h2 class="text-xs font-extrabold text-white uppercase tracking-wider">Portal Services & Links</h2>
           </div>
-          <div id="links-display-grid" class="grid grid-cols-3 gap-3"></div>
+          <div id="links-display-grid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3"></div>
         </section>
 
       </main>
@@ -278,7 +292,6 @@
       listenGlobalSystem();
     };
 
-    // GLOBAL MAINTENANCE & ANNOUNCEMENT LISTENER
     function listenGlobalSystem() {
       db.ref('system/server_status').on('value', (snap) => {
         if (snap.val() === 'maintenance') {
@@ -288,7 +301,6 @@
         }
       });
 
-      // Announcement ticker only syncs inside dashboard
       db.ref('system/notice_message').on('value', (snap) => {
         const msg = snap.val();
         if (msg && loggedInUser) {
@@ -342,7 +354,6 @@
         dashboard.classList.remove('hidden');
         activeUserDisplay.innerText = `User: ${u}`;
 
-        // Trigger ticker check upon login
         db.ref('system/notice_message').once('value').then((snap) => {
           if (snap.val()) {
             tickerText.innerText = snap.val();
@@ -492,7 +503,7 @@
       document.getElementById('popup-title').innerText = title;
       document.getElementById('popup-message').innerHTML = msg;
       document.getElementById('popup-icon-container').innerText = icon;
-      modal.classList.remove('hidden');
+      modal.classList.removance ? modal.classList.remove('hidden') : modal.classList.remove('hidden');
     }
 
     document.getElementById('popup-close-btn').onclick = () => {
