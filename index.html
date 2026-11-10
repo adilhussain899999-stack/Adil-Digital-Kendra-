@@ -17,32 +17,32 @@
   
   <style>
     body {
-      background-color: #030712;
+      background-color: #020617;
       font-family: 'Plus Jakarta Sans', sans-serif;
       color: #f8fafc;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
     }
-    /* Adaptive Viewport: Mobile pe 480px, Desktop/PC par full fluid responsive width */
+    /* Strict Centered 9:16 Responsive Viewport */
     .app-viewport {
       width: 100%;
-      max-width: 480px;
-      min-height: 100vh;
+      max-width: 450px;
+      height: 100vh;
+      max-height: 100vh;
       margin: 0 auto;
       background-color: #0b0f19;
-      box-shadow: 0 0 50px rgba(99, 102, 241, 0.15);
+      box-shadow: 0 0 50px rgba(99, 102, 241, 0.2);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      border-left: 1px solid rgba(255, 255, 255, 0.08);
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
     }
-    @media (min-width: 768px) {
-      .app-viewport {
-        max-width: 900px;
-        border-left: 1px solid rgba(255, 255, 255, 0.08);
-        border-right: 1px solid rgba(255, 255, 255, 0.08);
-      }
-    }
-    @media (min-width: 1024px) {
-      .app-viewport {
-        max-width: 1150px;
-      }
-    }
-
     .hide-scrollbar::-webkit-scrollbar { display: none; }
     .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     
@@ -60,21 +60,27 @@
       backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.08);
     }
+    .smooth-transition {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
   </style>
 </head>
-<body class="flex justify-center items-center min-h-screen selection:bg-indigo-500 selection:text-white">
+<body class="selection:bg-indigo-500 selection:text-white">
 
-  <div class="app-viewport w-full flex flex-col justify-between relative overflow-hidden">
-
-    <!-- 1. LIVE TICKER BANNER -->
-    <div id="live-ticker-bar" class="hidden bg-indigo-950/80 border-b border-indigo-800/50 px-4 py-2 flex items-center space-x-2 text-xs z-30">
-      <span class="bg-indigo-600 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider animate-pulse flex-shrink-0">NOTICE</span>
-      <marquee id="ticker-text" class="text-indigo-200 text-xs font-semibold" scrollamount="4"></marquee>
+  <!-- STRICT MAINTENANCE FULLSCREEN OVERLAY -->
+  <div id="maintenance-overlay" class="hidden fixed inset-0 z-50 bg-slate-950 flex flex-col items-center justify-center p-6 text-center space-y-4">
+    <div class="w-20 h-20 rounded-3xl bg-rose-600/20 border border-rose-500/40 flex items-center justify-center text-4xl animate-bounce">
+      🛠️
     </div>
+    <h1 class="text-xl font-black text-white uppercase tracking-wider">UNDER MAINTENANCE</h1>
+    <p class="text-xs text-slate-400 max-w-xs leading-relaxed">Portal is currently offline for system maintenance by admin. Please check back shortly.</p>
+  </div>
 
-    <!-- 2. LOGIN SCREEN (AUTHENTICATION & BOT-PROOF CAPTCHA) -->
-    <div id="portal-login-screen" class="inset-0 min-h-screen flex flex-col justify-center px-6 py-10 z-40 bg-slate-950">
-      <div class="max-w-md mx-auto w-full space-y-6">
+  <div class="app-viewport">
+
+    <!-- 1. LOGIN SCREEN -->
+    <div id="portal-login-screen" class="absolute inset-0 flex flex-col justify-center px-6 py-8 z-40 bg-slate-950 overflow-y-auto hide-scrollbar smooth-transition">
+      <div class="space-y-6 my-auto">
         
         <!-- Brand Header -->
         <div class="text-center space-y-3">
@@ -97,15 +103,14 @@
             <input type="password" id="login-password" required placeholder="Enter password" class="w-full bg-slate-900 border border-slate-800 focus:border-indigo-500 rounded-xl px-4 py-3 text-xs text-white focus:outline-none transition-all placeholder:text-slate-600" />
           </div>
 
-          <!-- BOT-PROOF HARD CANVAS CAPTCHA -->
+          <!-- CAPTCHA -->
           <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 space-y-2">
             <div class="flex items-center justify-between">
               <label class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider">Human Verification</label>
-              <button type="button" onclick="generateHardCaptcha()" class="text-[10px] text-slate-400 hover:text-white underline">Refresh Captcha 🔄</button>
+              <button type="button" onclick="generateHardCaptcha()" class="text-[10px] text-slate-400 hover:text-white underline">Refresh 🔄</button>
             </div>
-            
             <div class="flex items-center space-x-3">
-              <canvas id="captcha-canvas" width="140" height="42" class="rounded-lg border border-slate-800 bg-slate-950 flex-shrink-0 cursor-pointer" onclick="generateHardCaptcha()"></canvas>
+              <canvas id="captcha-canvas" width="130" height="40" class="rounded-lg border border-slate-800 bg-slate-950 flex-shrink-0 cursor-pointer" onclick="generateHardCaptcha()"></canvas>
               <input type="text" id="captcha-input" required placeholder="Type Code" class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg px-3 py-2.5 text-xs text-white font-mono uppercase focus:outline-none" />
             </div>
           </div>
@@ -115,14 +120,14 @@
           </button>
         </form>
 
-        <!-- Official Support Contact Box -->
-        <div class="pt-4 border-t border-slate-800/80 text-center space-y-3">
-          <p class="text-[11px] text-slate-400 font-medium">To access the portal or get account, contact us:</p>
+        <!-- Support Box -->
+        <div class="pt-3 border-t border-slate-800/80 text-center space-y-2.5">
+          <p class="text-[11px] text-slate-400 font-medium">To access portal or get account, contact us:</p>
           <div class="flex items-center justify-center space-x-3">
-            <a href="https://wa.me/917488176848" target="_blank" class="flex items-center space-x-2 bg-emerald-950/60 border border-emerald-800/60 hover:bg-emerald-900/60 px-3.5 py-2 rounded-xl text-xs font-semibold text-emerald-300 transition-all">
+            <a href="https://wa.me/917488176848" target="_blank" class="flex items-center space-x-2 bg-emerald-950/60 border border-emerald-800/60 px-3.5 py-2 rounded-xl text-xs font-semibold text-emerald-300">
               <span>💬 WhatsApp</span>
             </a>
-            <a href="mailto:byteburner356@gmail.com" class="flex items-center space-x-2 bg-rose-950/60 border border-rose-800/60 hover:bg-rose-900/60 px-3.5 py-2 rounded-xl text-xs font-semibold text-rose-300 transition-all">
+            <a href="mailto:byteburner356@gmail.com" class="flex items-center space-x-2 bg-rose-950/60 border border-rose-800/60 px-3.5 py-2 rounded-xl text-xs font-semibold text-rose-300">
               <span>✉️ Email</span>
             </a>
           </div>
@@ -131,11 +136,17 @@
       </div>
     </div>
 
-    <!-- 3. CLIENT PORTAL DASHBOARD -->
-    <div id="portal-dashboard" class="hidden flex-col h-full min-h-screen">
+    <!-- 3. CLIENT PORTAL DASHBOARD (ANNOUNCEMENT ONLY HERE) -->
+    <div id="portal-dashboard" class="hidden absolute inset-0 flex flex-col bg-[#0b0f19] z-30 smooth-transition">
       
-      <!-- Top Sticky Header -->
-      <header class="bg-slate-950/90 backdrop-blur-md border-b border-slate-800/80 p-4 sticky top-0 z-30 flex items-center justify-between">
+      <!-- Live Ticker Banner (Only inside Dashboard) -->
+      <div id="live-ticker-bar" class="hidden bg-indigo-950/90 border-b border-indigo-800/50 px-4 py-2 flex items-center space-x-2 text-xs z-30 flex-shrink-0">
+        <span class="bg-indigo-600 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider animate-pulse flex-shrink-0">NOTICE</span>
+        <marquee id="ticker-text" class="text-indigo-200 text-xs font-semibold" scrollamount="4"></marquee>
+      </div>
+
+      <!-- Top Header -->
+      <header class="bg-slate-950/95 backdrop-blur-md border-b border-slate-800/80 p-4 sticky top-0 z-30 flex items-center justify-between flex-shrink-0">
         <div class="flex items-center space-x-3">
           <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center font-black text-xl text-white shadow-md shadow-indigo-500/30 neon-border">
             AD
@@ -150,33 +161,29 @@
         </button>
       </header>
 
-      <!-- Dashboard Scrollable Body -->
-      <main class="flex-grow p-4 md:p-6 space-y-6 overflow-y-auto hide-scrollbar pb-10">
+      <!-- Scrollable Body -->
+      <main class="flex-grow p-4 space-y-6 overflow-y-auto hide-scrollbar">
 
-        <!-- INTERACTIVE TOOLS GRID -->
+        <!-- TOOLS GRID -->
         <section class="space-y-3">
           <div class="flex items-center space-x-2 border-l-4 border-indigo-500 pl-2">
             <h2 class="text-xs font-extrabold text-white uppercase tracking-wider">Interactive Tools</h2>
           </div>
-          <div id="tools-display-grid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
-            <!-- Dynamic Tools rendered here -->
-          </div>
+          <div id="tools-display-grid" class="grid grid-cols-3 gap-3"></div>
         </section>
 
-        <!-- PORTAL SERVICES & LINKS GRID -->
+        <!-- LINKS GRID -->
         <section class="space-y-3">
           <div class="flex items-center space-x-2 border-l-4 border-emerald-500 pl-2">
             <h2 class="text-xs font-extrabold text-white uppercase tracking-wider">Portal Services & Links</h2>
           </div>
-          <div id="links-display-grid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
-            <!-- Dynamic Links rendered here -->
-          </div>
+          <div id="links-display-grid" class="grid grid-cols-3 gap-3"></div>
         </section>
 
       </main>
 
-      <!-- Portal Footer -->
-      <footer class="text-center py-4 border-t border-slate-800/60 bg-slate-950">
+      <!-- Footer -->
+      <footer class="text-center py-3 border-t border-slate-800/60 bg-slate-950 flex-shrink-0">
         <p class="text-[11px] font-semibold text-slate-500">© 2026 Adil Digital Kendra. All rights reserved.</p>
       </footer>
 
@@ -184,23 +191,19 @@
 
   </div>
 
-  <!-- POPUP MODAL TEMPLATE -->
+  <!-- POPUP MODAL -->
   <div id="popup-modal" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
     <div class="glass-card border border-slate-800 rounded-3xl p-6 w-full max-w-sm text-center space-y-4 shadow-2xl">
-      <div id="popup-icon-container" class="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center text-2xl font-bold">
-        🔔
-      </div>
+      <div id="popup-icon-container" class="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center text-2xl font-bold">🔔</div>
       <h3 id="popup-title" class="text-sm font-black uppercase text-white tracking-wider">Notice</h3>
       <p id="popup-message" class="text-xs text-slate-300 leading-relaxed"></p>
-      <button id="popup-close-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-lg shadow-indigo-600/30">
-        Dismiss
-      </button>
+      <button id="popup-close-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-xl text-xs transition-all shadow-lg shadow-indigo-600/30">Dismiss</button>
     </div>
   </div>
 
   <!-- EMBED TOOL LAUNCHER MODAL -->
-  <div id="tool-embed-modal" class="hidden fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex flex-col p-4">
-    <div class="flex items-center justify-between bg-slate-900 border border-slate-800 p-3 rounded-2xl mb-3">
+  <div id="tool-embed-modal" class="hidden fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex flex-col p-4">
+    <div class="flex items-center justify-between bg-slate-900 border border-slate-800 p-3 rounded-2xl mb-3 flex-shrink-0">
       <h3 id="embed-tool-title" class="text-xs font-bold text-white uppercase">Interactive Tool</h3>
       <button onclick="closeEmbedTool()" class="bg-rose-950 text-rose-400 border border-rose-800 px-3 py-1 rounded-xl text-xs font-bold">Close Tool ✖</button>
     </div>
@@ -208,7 +211,6 @@
   </div>
 
   <script>
-    // Firebase Setup
     const firebaseConfig = {
       apiKey: "AIzaSyBRXbHx6wUVbkHLbtaY9m2p6lcmEHNyubc",
       authDomain: "adil-digital-kendra.firebaseapp.com",
@@ -222,12 +224,10 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // Global App State
     let currentCaptchaCode = "";
     let loggedInUser = null;
     let sessionTimerInterval = null;
 
-    // DOM Elements
     const loginScreen = document.getElementById('portal-login-screen');
     const dashboard = document.getElementById('portal-dashboard');
     const loginForm = document.getElementById('user-login-form');
@@ -236,8 +236,8 @@
     const linksGrid = document.getElementById('links-display-grid');
     const liveTickerBar = document.getElementById('live-ticker-bar');
     const tickerText = document.getElementById('ticker-text');
+    const maintenanceOverlay = document.getElementById('maintenance-overlay');
 
-    // 1. HARD BOT-PROOF CAPTCHA GENERATOR
     function generateHardCaptcha() {
       const canvas = document.getElementById('captcha-canvas');
       const ctx = canvas.getContext('2d');
@@ -253,7 +253,7 @@
       ctx.fillStyle = '#020617';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      for (let i = 0; i < 6; i++) {
+      for (let i = 0; i < 5; i++) {
         ctx.strokeStyle = `rgba(99, 102, 241, ${Math.random() * 0.4 + 0.2})`;
         ctx.beginPath();
         ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
@@ -263,9 +263,9 @@
 
       for (let i = 0; i < captcha.length; i++) {
         ctx.save();
-        ctx.font = 'bold 22px monospace';
+        ctx.font = 'bold 20px monospace';
         ctx.fillStyle = i % 2 === 0 ? '#818cf8' : '#34d399';
-        ctx.translate(20 + i * 24, 28);
+        ctx.translate(16 + i * 22, 26);
         ctx.rotate((Math.random() - 0.5) * 0.4);
         ctx.fillText(captcha[i], 0, 0);
         ctx.restore();
@@ -275,9 +275,31 @@
     window.onload = () => {
       generateHardCaptcha();
       checkSavedSession();
+      listenGlobalSystem();
     };
 
-    // 2. USER LOGIN VERIFICATION & 3-HOUR SESSION TIMESTAMP
+    // GLOBAL MAINTENANCE & ANNOUNCEMENT LISTENER
+    function listenGlobalSystem() {
+      db.ref('system/server_status').on('value', (snap) => {
+        if (snap.val() === 'maintenance') {
+          maintenanceOverlay.classList.remove('hidden');
+        } else {
+          maintenanceOverlay.classList.add('hidden');
+        }
+      });
+
+      // Announcement ticker only syncs inside dashboard
+      db.ref('system/notice_message').on('value', (snap) => {
+        const msg = snap.val();
+        if (msg && loggedInUser) {
+          tickerText.innerText = msg;
+          liveTickerBar.classList.remove('hidden');
+        } else {
+          liveTickerBar.classList.add('hidden');
+        }
+      });
+    }
+
     loginForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const u = document.getElementById('login-username').value.trim();
@@ -285,7 +307,7 @@
       const userCap = document.getElementById('captcha-input').value.trim().toUpperCase();
 
       if (userCap !== currentCaptchaCode) {
-        showPopup("Security Warning", "Invalid Captcha code! Please type the exact letters shown in the box.", "⚠️", "rose");
+        showPopup("Security Warning", "Invalid Captcha code! Please type the exact characters.", "⚠️", "rose");
         generateHardCaptcha();
         document.getElementById('captcha-input').value = "";
         return;
@@ -295,14 +317,14 @@
         const userData = snapshot.val();
 
         if (!userData || userData.password !== p) {
-          showPopup("Access Denied", "Incorrect username or password. Please contact admin.", "🚫", "rose");
+          showPopup("Access Denied", "Incorrect username or password.", "🚫", "rose");
           generateHardCaptcha();
           return;
         }
 
         if (userData.status === 'blocked') {
           const reason = userData.block_reason ? `<br><br><b>Reason:</b> ${userData.block_reason}` : '';
-          showPopup("Account Suspended", `Your account has been blocked by system admin.${reason}`, "🔒", "rose");
+          showPopup("Account Suspended", `Your account has been blocked.${reason}`, "🔒", "rose");
           generateHardCaptcha();
           return;
         }
@@ -318,15 +340,21 @@
 
         loginScreen.classList.add('hidden');
         dashboard.classList.remove('hidden');
-        dashboard.classList.add('flex');
         activeUserDisplay.innerText = `User: ${u}`;
 
-        showPopup("Welcome Back", `Successfully logged into Adil Digital Kendra portal. Session active for 3 hours.`, "✅", "emerald");
-        listenLiveUpdates();
+        // Trigger ticker check upon login
+        db.ref('system/notice_message').once('value').then((snap) => {
+          if (snap.val()) {
+            tickerText.innerText = snap.val();
+            liveTickerBar.classList.remove('hidden');
+          }
+        });
+
+        showPopup("Welcome Back", `Successfully logged in. Session active for 3 hours.`, "✅", "emerald");
+        loadPortalData();
       });
     });
 
-    // 3-HOUR AUTO EXPIRY SESSION TIMER
     function startSessionTimer(loginTime) {
       if (sessionTimerInterval) clearInterval(sessionTimerInterval);
       const threeHours = 3 * 60 * 60 * 1000;
@@ -335,7 +363,7 @@
         const elapsed = Date.now() - loginTime;
         if (elapsed >= threeHours) {
           clearInterval(sessionTimerInterval);
-          performLogout("Session Expired: 3-hour limit reached. Please log in again.");
+          performLogout("Session Expired: 3-hour limit reached.");
         }
       }, 1000);
     }
@@ -355,9 +383,16 @@
 
             loginScreen.classList.add('hidden');
             dashboard.classList.remove('hidden');
-            dashboard.classList.add('flex');
             activeUserDisplay.innerText = `User: ${savedUser}`;
-            listenLiveUpdates();
+
+            db.ref('system/notice_message').once('value').then((s) => {
+              if (s.val()) {
+                tickerText.innerText = s.val();
+                liveTickerBar.classList.remove('hidden');
+              }
+            });
+
+            loadPortalData();
           } else {
             performLogout();
           }
@@ -367,9 +402,7 @@
       }
     }
 
-    document.getElementById('portal-logout-btn').onclick = () => {
-      performLogout();
-    };
+    document.getElementById('portal-logout-btn').onclick = () => performLogout();
 
     function performLogout(reasonMsg = null) {
       if (sessionTimerInterval) clearInterval(sessionTimerInterval);
@@ -377,8 +410,8 @@
       localStorage.removeItem('ad_user_login_time');
       loggedInUser = null;
 
+      liveTickerBar.classList.add('hidden');
       dashboard.classList.add('hidden');
-      dashboard.classList.remove('flex');
       loginScreen.classList.remove('hidden');
       generateHardCaptcha();
 
@@ -387,24 +420,7 @@
       }
     }
 
-    // 3. LISTEN TO LIVE FIREBASE UPDATES
-    function listenLiveUpdates() {
-      db.ref('system/server_status').on('value', (snap) => {
-        if (snap.val() === 'maintenance') {
-          showPopup("Under Maintenance", "Portal is currently offline for system maintenance. Please check back later.", "🛠️", "indigo");
-        }
-      });
-
-      db.ref('system/notice_message').on('value', (snap) => {
-        const msg = snap.val();
-        if (msg) {
-          tickerText.innerText = msg;
-          liveTickerBar.classList.remove('hidden');
-        } else {
-          liveTickerBar.classList.add('hidden');
-        }
-      });
-
+    function loadPortalData() {
       db.ref('tools').on('value', (snapshot) => {
         toolsGrid.innerHTML = '';
         const data = snapshot.val();
@@ -471,16 +487,11 @@
       document.getElementById('embed-tool-container').innerHTML = '';
     }
 
-    function showPopup(title, msg, icon = "🔔", color = "indigo") {
+    function showPopup(title, msg, icon = "🔔") {
       const modal = document.getElementById('popup-modal');
-      const titleEl = document.getElementById('popup-title');
-      const msgEl = document.getElementById('popup-message');
-      const iconContainer = document.getElementById('popup-icon-container');
-
-      titleEl.innerText = title;
-      msgEl.innerHTML = msg;
-      iconContainer.innerText = icon;
-
+      document.getElementById('popup-title').innerText = title;
+      document.getElementById('popup-message').innerHTML = msg;
+      document.getElementById('popup-icon-container').innerText = icon;
       modal.classList.remove('hidden');
     }
 
