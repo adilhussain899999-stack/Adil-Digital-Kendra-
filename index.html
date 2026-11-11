@@ -15,6 +15,9 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
   
+  <!-- jsPDF Library for Tools -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
   <style>
     body {
       background-color: #020617;
@@ -28,7 +31,7 @@
       min-height: 100vh;
     }
     
-    /* Smart Adaptive Viewport: Mobile pe 9:16 centered, Desktop ya Desktop Mode par fluid expansive layout */
+    /* Smart Adaptive Viewport: Mobile pe 9:16 centered, Desktop par fluid expansive layout */
     .app-viewport {
       width: 100%;
       max-width: 480px;
@@ -46,19 +49,25 @@
       transition: max-width 0.3s ease;
     }
 
-    @media (min-width: 768px), (min-resolution: 192dpi) and (max-width: 1024px) {
+    @media (min-width: 768px) {
       .app-viewport {
-        max-width: 850px;
+        max-width: 900px;
+        border-radius: 24px;
+        height: 94vh;
+        max-height: 94vh;
+        border: 1px solid rgba(255, 255, 255, 0.12);
       }
     }
     @media (min-width: 1200px) {
       .app-viewport {
-        max-width: 1100px;
+        max-width: 1150px;
       }
     }
 
-    .hide-scrollbar::-webkit-scrollbar { display: none; }
-    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    /* Custom Smooth Scrollbar for Grids */
+    .smooth-scroll::-webkit-scrollbar { width: 6px; }
+    .smooth-scroll::-webkit-scrollbar-track { background: #0b0f19; }
+    .smooth-scroll::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
     
     .neon-border {
       box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
@@ -67,10 +76,10 @@
       box-shadow: 0 0 20px rgba(20, 184, 166, 0.25);
     }
     .neon-glow-indigo {
-      box-shadow: 0 0 20px rgba(99, 102, 241, 0.35);
+      box-shadow: 0 0 22px rgba(99, 102, 241, 0.4);
     }
     .glass-card {
-      background: rgba(15, 23, 42, 0.75);
+      background: rgba(15, 23, 42, 0.8);
       backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.08);
     }
@@ -93,7 +102,7 @@
   <div class="app-viewport">
 
     <!-- 1. LOGIN SCREEN -->
-    <div id="portal-login-screen" class="absolute inset-0 flex flex-col justify-center px-6 py-8 z-40 bg-slate-950 overflow-y-auto hide-scrollbar smooth-transition">
+    <div id="portal-login-screen" class="absolute inset-0 flex flex-col justify-center px-6 py-8 z-40 bg-slate-950 overflow-y-auto smooth-scroll smooth-transition">
       <div class="max-w-md mx-auto w-full space-y-6 my-auto">
         
         <!-- Brand Header -->
@@ -125,7 +134,8 @@
             </div>
             <div class="flex items-center space-x-3">
               <canvas id="captcha-canvas" width="130" height="40" class="rounded-lg border border-slate-800 bg-slate-950 flex-shrink-0 cursor-pointer" onclick="generateHardCaptcha()"></canvas>
-              <input type="text" id="captcha-input" required placeholder="Type Code" class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg px-3 py-2.5 text-xs text-white font-mono uppercase focus:outline-none" />
+              <!-- Updated Placeholder as requested -->
+              <input type="text" id="captcha-input" required placeholder="Enter Captcha" class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg px-3 py-2.5 text-xs text-white font-mono uppercase focus:outline-none placeholder:font-sans placeholder:normal-case placeholder:text-slate-600" />
             </div>
           </div>
 
@@ -175,23 +185,23 @@
         </button>
       </header>
 
-      <!-- Scrollable Body with Adaptive Grid Columns -->
-      <main class="flex-grow p-4 md:p-6 space-y-6 overflow-y-auto hide-scrollbar">
+      <!-- Scrollable Body with Smooth Incremental Scroll Layout -->
+      <main class="flex-grow p-4 md:p-6 space-y-6 overflow-y-auto smooth-scroll" style="max-height: calc(100vh - 120px);">
 
         <!-- TOOLS GRID -->
         <section class="space-y-3">
           <div class="flex items-center space-x-2 border-l-4 border-indigo-500 pl-2">
             <h2 class="text-xs font-extrabold text-white uppercase tracking-wider">Interactive Tools</h2>
           </div>
-          <div id="tools-display-grid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3"></div>
+          <div id="tools-display-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
         </section>
 
         <!-- LINKS GRID -->
-        <section class="space-y-3">
+        <section class="space-y-3 pt-2">
           <div class="flex items-center space-x-2 border-l-4 border-emerald-500 pl-2">
             <h2 class="text-xs font-extrabold text-white uppercase tracking-wider">Portal Services & Links</h2>
           </div>
-          <div id="links-display-grid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3"></div>
+          <div id="links-display-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
         </section>
 
       </main>
@@ -216,12 +226,12 @@
   </div>
 
   <!-- EMBED TOOL LAUNCHER MODAL -->
-  <div id="tool-embed-modal" class="hidden fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex flex-col p-4">
+  <div id="tool-embed-modal" class="hidden fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex flex-col p-3 sm:p-6">
     <div class="flex items-center justify-between bg-slate-900 border border-slate-800 p-3 rounded-2xl mb-3 flex-shrink-0">
       <h3 id="embed-tool-title" class="text-xs font-bold text-white uppercase">Interactive Tool</h3>
       <button onclick="closeEmbedTool()" class="bg-rose-950 text-rose-400 border border-rose-800 px-3 py-1 rounded-xl text-xs font-bold">Close Tool ✖</button>
     </div>
-    <div id="embed-tool-container" class="flex-grow bg-slate-900 border border-slate-800 rounded-2xl p-4 overflow-y-auto"></div>
+    <div id="embed-tool-container" class="flex-grow bg-slate-900 border border-slate-800 rounded-2xl p-4 overflow-y-auto smooth-scroll"></div>
   </div>
 
   <script>
@@ -441,17 +451,18 @@
           const item = data[key];
           if (item.hidden === true) return;
 
-          let iconContent = `<div class="w-12 h-12 rounded-2xl bg-indigo-600/30 text-indigo-300 flex items-center justify-center font-black text-xs uppercase border border-indigo-500/40">TOOL</div>`;
+          let iconContent = `<div class="w-16 h-16 rounded-2xl bg-indigo-600/30 text-indigo-300 flex items-center justify-center font-black text-xs uppercase border border-indigo-500/40 neon-glow-indigo">TOOL</div>`;
           if (item.icon_url) {
-            iconContent = `<img src="${item.icon_url}" class="w-12 h-12 rounded-2xl object-contain bg-slate-950 p-1.5 border border-indigo-500/40 neon-glow-indigo" />`;
+            iconContent = `<img src="${item.icon_url}" class="w-16 h-16 rounded-2xl object-contain bg-slate-950 p-2 border border-indigo-500/50 neon-glow-indigo" />`;
           }
 
           const card = document.createElement('div');
-          card.className = "glass-card hover:border-indigo-500/60 p-3 rounded-2xl flex flex-col items-center text-center justify-between cursor-pointer transition-all active:scale-95 space-y-2";
+          // Enhanced card sizing with taller height for clean name spacing
+          card.className = "glass-card hover:border-indigo-500/60 p-4 rounded-3xl flex flex-col items-center text-center justify-between cursor-pointer transition-all active:scale-95 space-y-3 min-h-[135px]";
           card.onclick = () => launchTool(item);
           card.innerHTML = `
             ${iconContent}
-            <span class="text-[11px] font-bold text-slate-200 line-clamp-2 leading-snug">${item.title}</span>
+            <span class="text-xs font-bold text-slate-200 line-clamp-2 leading-snug">${item.title}</span>
           `;
           toolsGrid.appendChild(card);
         });
@@ -466,29 +477,46 @@
           const item = data[key];
           if (item.hidden === true) return;
 
-          let iconContent = `<div class="w-12 h-12 rounded-2xl bg-emerald-600/30 text-emerald-300 flex items-center justify-center font-black text-xs uppercase border border-emerald-500/40">LINK</div>`;
+          let iconContent = `<div class="w-16 h-16 rounded-2xl bg-emerald-600/30 text-emerald-300 flex items-center justify-center font-black text-xs uppercase border border-emerald-500/40 neon-glow-teal">LINK</div>`;
           if (item.icon_url) {
-            iconContent = `<img src="${item.icon_url}" class="w-12 h-12 rounded-2xl object-contain bg-slate-950 p-1.5 border border-emerald-500/40 neon-glow-teal" />`;
+            iconContent = `<img src="${item.icon_url}" class="w-16 h-16 rounded-2xl object-contain bg-slate-950 p-2 border border-emerald-500/50 neon-glow-teal" />`;
           }
 
           const card = document.createElement('div');
-          card.className = "glass-card hover:border-emerald-500/60 p-3 rounded-2xl flex flex-col items-center text-center justify-between cursor-pointer transition-all active:scale-95 space-y-2";
+          card.className = "glass-card hover:border-emerald-500/60 p-4 rounded-3xl flex flex-col items-center text-center justify-between cursor-pointer transition-all active:scale-95 space-y-3 min-h-[135px]";
           card.onclick = () => window.open(item.target_url, '_blank');
           card.innerHTML = `
             ${iconContent}
-            <span class="text-[11px] font-bold text-slate-200 line-clamp-2 leading-snug">${item.title}</span>
+            <span class="text-xs font-bold text-slate-200 line-clamp-2 leading-snug">${item.title}</span>
           `;
           linksGrid.appendChild(card);
         });
       });
     }
 
+    // FIXED TOOL LAUNCHER WITH SCRIPT EXECUTION RE-PARSER
     function launchTool(tool) {
       if (tool.target_url) {
         window.open(tool.target_url, '_blank');
       } else if (tool.code) {
         document.getElementById('embed-tool-title').innerText = tool.title;
-        document.getElementById('embed-tool-container').innerHTML = tool.code;
+        const container = document.getElementById('embed-tool-container');
+        container.innerHTML = tool.code;
+        
+        // Re-parse and execute injected script tags properly so buttons & tools work
+        const scripts = container.getElementsByTagName('script');
+        for (let i = 0; i < scripts.length; i++) {
+          const script = scripts[i];
+          const newScript = document.createElement('script');
+          if (script.src) {
+            newScript.src = script.src;
+          } else {
+            newScript.text = script.textContent;
+          }
+          document.body.appendChild(newScript);
+          document.body.removeChild(newScript);
+        }
+
         document.getElementById('tool-embed-modal').classList.remove('hidden');
       }
     }
@@ -503,7 +531,7 @@
       document.getElementById('popup-title').innerText = title;
       document.getElementById('popup-message').innerHTML = msg;
       document.getElementById('popup-icon-container').innerText = icon;
-      modal.classList.removance ? modal.classList.remove('hidden') : modal.classList.remove('hidden');
+      modal.classList.remove('hidden');
     }
 
     document.getElementById('popup-close-btn').onclick = () => {
