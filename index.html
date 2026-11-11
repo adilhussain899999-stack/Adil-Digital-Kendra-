@@ -30,7 +30,6 @@
       overflow: hidden;
     }
     
-    /* Full-Screen Fluid Viewport: No narrow boxes, covers entire device screen smoothly */
     .app-viewport {
       width: 100vw;
       height: 100vh;
@@ -41,29 +40,20 @@
       overflow: hidden;
     }
 
-    /* Custom Buttery Smooth Scrollbar */
     .smooth-scroll::-webkit-scrollbar { width: 6px; }
     .smooth-scroll::-webkit-scrollbar-track { background: #0b0f19; }
     .smooth-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     .smooth-scroll { scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
     
-    .neon-border {
-      box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
-    }
-    .neon-glow-teal {
-      box-shadow: 0 0 18px rgba(20, 184, 166, 0.25);
-    }
-    .neon-glow-indigo {
-      box-shadow: 0 0 22px rgba(99, 102, 241, 0.4);
-    }
+    .neon-border { box-shadow: 0 0 15px rgba(99, 102, 241, 0.3); }
+    .neon-glow-teal { box-shadow: 0 0 18px rgba(20, 184, 166, 0.25); }
+    .neon-glow-indigo { box-shadow: 0 0 22px rgba(99, 102, 241, 0.4); }
     .glass-card {
       background: rgba(15, 23, 42, 0.85);
       backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.08);
     }
-    .smooth-transition {
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    }
+    .smooth-transition { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
   </style>
 </head>
 <body class="selection:bg-indigo-500 selection:text-white">
@@ -82,8 +72,6 @@
     <!-- 1. LOGIN SCREEN -->
     <div id="portal-login-screen" class="absolute inset-0 flex flex-col justify-center px-6 py-8 z-40 bg-slate-950 overflow-y-auto smooth-scroll smooth-transition">
       <div class="max-w-md mx-auto w-full space-y-6 my-auto">
-        
-        <!-- Brand Header -->
         <div class="text-center space-y-3">
           <div class="w-20 h-20 rounded-3xl bg-gradient-to-tr from-indigo-600 to-violet-500 mx-auto flex items-center justify-center font-black text-4xl text-white shadow-xl shadow-indigo-500/40 neon-border">
             AD
@@ -92,7 +80,6 @@
           <p class="text-xs font-semibold text-indigo-400 tracking-widest uppercase">Secure Portal Authorization</p>
         </div>
 
-        <!-- Login Form -->
         <form id="user-login-form" class="space-y-4 pt-2">
           <div>
             <label class="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1.5">Username</label>
@@ -104,7 +91,6 @@
             <input type="password" id="login-password" required placeholder="Enter password" class="w-full bg-slate-900 border border-slate-800 focus:border-indigo-500 rounded-xl px-4 py-3 text-xs text-white focus:outline-none transition-all placeholder:text-slate-600" />
           </div>
 
-          <!-- CAPTCHA -->
           <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 space-y-2">
             <div class="flex items-center justify-between">
               <label class="text-[10px] font-bold text-indigo-400 uppercase tracking-wider">Human Verification</label>
@@ -112,7 +98,6 @@
             </div>
             <div class="flex items-center space-x-3">
               <canvas id="captcha-canvas" width="130" height="40" class="rounded-lg border border-slate-800 bg-slate-950 flex-shrink-0 cursor-pointer" onclick="generateHardCaptcha()"></canvas>
-              <!-- Updated Placeholder -->
               <input type="text" id="captcha-input" required placeholder="Enter Captcha" class="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg px-3 py-2.5 text-xs text-white font-mono uppercase focus:outline-none placeholder:font-sans placeholder:normal-case placeholder:text-slate-600" />
             </div>
           </div>
@@ -122,7 +107,6 @@
           </button>
         </form>
 
-        <!-- Support Box -->
         <div class="pt-3 border-t border-slate-800/80 text-center space-y-2.5">
           <p class="text-[11px] text-slate-400 font-medium">To access portal or get account, contact us:</p>
           <div class="flex items-center justify-center space-x-3">
@@ -134,7 +118,6 @@
             </a>
           </div>
         </div>
-
       </div>
     </div>
 
@@ -163,15 +146,22 @@
         </button>
       </header>
 
-      <!-- Scrollable Main Container: Fully responsive & filling entire width -->
+      <!-- Scrollable Main Container -->
       <main class="flex-grow p-4 sm:p-6 md:p-8 space-y-6 overflow-y-auto smooth-scroll">
+
+        <!-- INSTANT SEARCH BAR SECTION -->
+        <div class="max-w-7xl mx-auto w-full">
+          <div class="relative bg-slate-900/90 border border-slate-800 rounded-2xl p-2.5 shadow-lg flex items-center space-x-3">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-indigo-400 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input type="text" id="portal-search-input" oninput="filterPortalItems(this.value)" placeholder="Search tools or services..." class="w-full bg-transparent text-xs sm:text-sm text-white focus:outline-none placeholder:text-slate-500" />
+          </div>
+        </div>
 
         <!-- TOOLS GRID SECTION -->
         <section class="space-y-3.5 max-w-7xl mx-auto w-full">
           <div class="flex items-center space-x-2 border-l-4 border-indigo-500 pl-2">
             <h2 class="text-xs font-extrabold text-white uppercase tracking-wider">Interactive Tools</h2>
           </div>
-          <!-- Fluid responsive grid spanning full width smoothly -->
           <div id="tools-display-grid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3.5 sm:gap-4"></div>
         </section>
 
@@ -185,9 +175,37 @@
 
       </main>
 
-      <!-- Footer -->
-      <footer class="text-center py-3 border-t border-slate-800/60 bg-slate-950 flex-shrink-0">
-        <p class="text-[11px] font-semibold text-slate-500">© 2026 Adil Digital Kendra. All rights reserved.</p>
+      <!-- Professional Footer with Founder Contact & Original Brand Icons -->
+      <footer class="border-t border-slate-800/80 bg-slate-950 py-4 px-4 flex-shrink-0 space-y-3">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 text-center md:text-left">
+          
+          <!-- Copyright Notice -->
+          <p class="text-[11px] font-semibold text-slate-400">© 2026 Adil Digital Kendra. All rights reserved[span_0](start_span)[span_0](end_span).</p>
+
+          <!-- Founder Contact Links with Original Icons -->
+          <div class="flex items-center justify-center space-x-4 flex-wrap gap-y-2">
+            
+            <!-- WhatsApp -->
+            <a href="https://wa.me/917488176848" target="_blank" class="flex items-center space-x-1.5 text-emerald-400 hover:text-emerald-300 text-[11px] font-bold bg-emerald-950/40 border border-emerald-800/40 px-3 py-1.5 rounded-xl transition-all">
+              <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+              <span>WhatsApp</span>
+            </a>
+
+            <!-- Email -->
+            <a href="mailto:byteburner356@gmail.com" class="flex items-center space-x-1.5 text-rose-400 hover:text-rose-300 text-[11px] font-bold bg-rose-950/40 border border-rose-800/40 px-3 py-1.5 rounded-xl transition-all">
+              <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 12.713l-11.985-9.713h23.97l-11.985 9.713zm0 2.574l-12-9.717v15.43h24v-15.43l-12 9.717z"/></svg>
+              <span>Email</span>
+            </a>
+
+            <!-- Founder Instagram Deep Link -->
+            <a href="instagram://user?username=adil_hussain" onclick="window.open('https://instagram.com/adil_hussain', '_blank'); return false;" class="flex items-center space-x-1.5 text-pink-400 hover:text-pink-300 text-[11px] font-bold bg-pink-950/40 border border-pink-800/40 px-3 py-1.5 rounded-xl transition-all">
+              <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+              <span>Founder Instagram</span>
+            </a>
+
+          </div>
+
+        </div>
       </footer>
 
     </div>
@@ -205,7 +223,7 @@
   </div>
 
   <!-- EMBED TOOL LAUNCHER MODAL -->
-  <div id="tool-embed-modal" class="hidden fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex flex-col p-3 sm:p-6">
+   <div id="tool-embed-modal" class="hidden fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex flex-col p-3 sm:p-6">
     <div class="flex items-center justify-between bg-slate-900 border border-slate-800 p-3 rounded-2xl mb-3 flex-shrink-0 max-w-4xl mx-auto w-full">
       <h3 id="embed-tool-title" class="text-xs font-bold text-white uppercase">Interactive Tool</h3>
       <button onclick="closeEmbedTool()" class="bg-rose-950 text-rose-400 border border-rose-800 px-3 py-1 rounded-xl text-xs font-bold">Close Tool ✖</button>
@@ -230,6 +248,8 @@
     let currentCaptchaCode = "";
     let loggedInUser = null;
     let sessionTimerInterval = null;
+    let rawToolsData = {};
+    let rawLinksData = {};
 
     const loginScreen = document.getElementById('portal-login-screen');
     const dashboard = document.getElementById('portal-dashboard');
@@ -422,57 +442,75 @@
 
     function loadPortalData() {
       db.ref('tools').on('value', (snapshot) => {
-        toolsGrid.innerHTML = '';
-        const data = snapshot.val();
-        if (!data) return;
-
-        Object.keys(data).forEach(key => {
-          const item = data[key];
-          if (item.hidden === true) return;
-
-          let iconContent = `<div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-indigo-600/30 text-indigo-300 flex items-center justify-center font-black text-xs uppercase border border-indigo-500/40 neon-glow-indigo">TOOL</div>`;
-          if (item.icon_url) {
-            iconContent = `<img src="${item.icon_url}" class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-contain bg-slate-950 p-2 border border-indigo-500/50 neon-glow-indigo" />`;
-          }
-
-          const card = document.createElement('div');
-          card.className = "glass-card hover:border-indigo-500/60 p-3 sm:p-4 rounded-3xl flex flex-col items-center text-center justify-between cursor-pointer transition-all active:scale-95 space-y-2.5 min-h-[125px]";
-          card.onclick = () => launchTool(item);
-          card.innerHTML = `
-            ${iconContent}
-            <span class="text-[11px] sm:text-xs font-bold text-slate-200 line-clamp-2 leading-snug">${item.title}</span>
-          `;
-          toolsGrid.appendChild(card);
-        });
+        rawToolsData = snapshot.val() || {};
+        renderTools(rawToolsData);
       });
 
       db.ref('links').on('value', (snapshot) => {
-        linksGrid.innerHTML = '';
-        const data = snapshot.val();
-        if (!data) return;
-
-        Object.keys(data).forEach(key => {
-          const item = data[key];
-          if (item.hidden === true) return;
-
-          let iconContent = `<div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-emerald-600/30 text-emerald-300 flex items-center justify-center font-black text-xs uppercase border border-emerald-500/40 neon-glow-teal">LINK</div>`;
-          if (item.icon_url) {
-            iconContent = `<img src="${item.icon_url}" class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-contain bg-slate-950 p-2 border border-emerald-500/50 neon-glow-teal" />`;
-          }
-
-          const card = document.createElement('div');
-          card.className = "glass-card hover:border-emerald-500/60 p-3 sm:p-4 rounded-3xl flex flex-col items-center text-center justify-between cursor-pointer transition-all active:scale-95 space-y-2.5 min-h-[125px]";
-          card.onclick = () => window.open(item.target_url, '_blank');
-          card.innerHTML = `
-            ${iconContent}
-            <span class="text-[11px] sm:text-xs font-bold text-slate-200 line-clamp-2 leading-snug">${item.title}</span>
-          `;
-          linksGrid.appendChild(card);
-        });
+        rawLinksData = snapshot.val() || {};
+        renderLinks(rawLinksData);
       });
     }
 
-    // FIXED TOOL LAUNCHER WITH SCRIPT EXECUTION RE-PARSER
+    function renderTools(data) {
+      toolsGrid.innerHTML = '';
+      Object.keys(data).forEach(key => {
+        const item = data[key];
+        if (item.hidden === true) return;
+
+        let iconContent = `<div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-indigo-600/30 text-indigo-300 flex items-center justify-center font-black text-xs uppercase border border-indigo-500/40 neon-glow-indigo">TOOL</div>`;
+        if (item.icon_url) {
+          iconContent = `<img src="${item.icon_url}" class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-contain bg-slate-950 p-2 border border-indigo-500/50 neon-glow-indigo" />`;
+        }
+
+        const card = document.createElement('div');
+        card.className = "glass-card hover:border-indigo-500/60 p-3 sm:p-4 rounded-3xl flex flex-col items-center text-center justify-between cursor-pointer transition-all active:scale-95 space-y-2.5 min-h-[125px]";
+        card.onclick = () => launchTool(item);
+        card.innerHTML = `${iconContent}<span class="text-[11px] sm:text-xs font-bold text-slate-200 line-clamp-2 leading-snug">${item.title}</span>`;
+        toolsGrid.appendChild(card);
+      });
+    }
+
+    function renderLinks(data) {
+      linksGrid.innerHTML = '';
+      Object.keys(data).forEach(key => {
+        const item = data[key];
+        if (item.hidden === true) return;
+
+        let iconContent = `<div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-emerald-600/30 text-emerald-300 flex items-center justify-center font-black text-xs uppercase border border-emerald-500/40 neon-glow-teal">LINK</div>`;
+        if (item.icon_url) {
+          iconContent = `<img src="${item.icon_url}" class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-contain bg-slate-950 p-2 border border-emerald-500/50 neon-glow-teal" />`;
+        }
+
+        const card = document.createElement('div');
+        card.className = "glass-card hover:border-emerald-500/60 p-3 sm:p-4 rounded-3xl flex flex-col items-center text-center justify-between cursor-pointer transition-all active:scale-95 space-y-2.5 min-h-[125px]";
+        card.onclick = () => window.open(item.target_url, '_blank');
+        card.innerHTML = `${iconContent}<span class="text-[11px] sm:text-xs font-bold text-slate-200 line-clamp-2 leading-snug">${item.title}</span>`;
+        linksGrid.appendChild(card);
+      });
+    }
+
+    // LIVE INSTANT SEARCH FILTER
+    function filterPortalItems(query) {
+      const q = query.toLowerCase().trim();
+      
+      const filteredTools = {};
+      Object.keys(rawToolsData).forEach(k => {
+        if (rawToolsData[k].title && rawToolsData[k].title.toLowerCase().includes(q)) {
+          filteredTools[k] = rawToolsData[k];
+        }
+      });
+      renderTools(filteredTools);
+
+      const filteredLinks = {};
+      Object.keys(rawLinksData).forEach(k => {
+        if (rawLinksData[k].title && rawLinksData[k].title.toLowerCase().includes(q)) {
+          filteredLinks[k] = rawLinksData[k];
+        }
+      });
+      renderLinks(filteredLinks);
+    }
+
     function launchTool(tool) {
       if (tool.target_url) {
         window.open(tool.target_url, '_blank');
